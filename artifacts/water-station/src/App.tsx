@@ -12,6 +12,7 @@ import Products from "@/pages/products";
 import Expenses from "@/pages/expenses";
 import Shifts from "@/pages/shifts";
 import Stats from "@/pages/stats";
+import Revenue from "@/pages/revenue";
 import Settings from "@/pages/settings";
 import Admin from "@/pages/admin";
 
@@ -43,6 +44,9 @@ function Router() {
       </Route>
       <Route path="/stats">
         <ProtectedRoute component={Stats} />
+      </Route>
+      <Route path="/revenue">
+        <ProtectedRoute component={Revenue} />
       </Route>
       <Route path="/settings">
         <ProtectedRoute component={Settings} />

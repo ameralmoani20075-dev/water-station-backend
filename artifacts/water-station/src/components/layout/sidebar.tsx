@@ -12,7 +12,8 @@ import {
   Settings, 
   ShieldAlert,
   LogOut,
-  Droplets
+  Droplets,
+  TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -37,6 +38,7 @@ export default function Sidebar() {
     { href: "/expenses", label: "النفقات", icon: Wallet, roles: ["station", "admin"] },
     { href: "/shifts", label: "المناوبات", icon: Clock, roles: ["station", "admin"] },
     { href: "/stats", label: "الإحصائيات", icon: BarChart3, roles: ["station", "admin"] },
+    { href: "/revenue", label: "الإيرادات", icon: TrendingUp, roles: ["station", "admin"] },
     { href: "/settings", label: "الإعدادات", icon: Settings, roles: ["station", "admin"] },
     { href: "/admin", label: "لوحة المدير", icon: ShieldAlert, roles: ["admin"] },
   ];

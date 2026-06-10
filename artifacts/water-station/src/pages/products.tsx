@@ -197,7 +197,7 @@ export default function Products() {
                   <FormItem>
                     <Label>السعر (دينار)</Label>
                     <FormControl>
-                      <Input type="number" min="0" {...field} dir="ltr" className="text-right" />
+                      <Input type="number" min="0" step="0.001" {...field} dir="ltr" className="text-right" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
