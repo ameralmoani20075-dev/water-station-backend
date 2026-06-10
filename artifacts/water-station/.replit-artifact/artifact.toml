@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Water Station Manager"
+version = "1.0.0"
+id = "artifacts/water-station"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18701
+
+[services.development]
+run = "pnpm --filter @workspace/water-station run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/water-station", "run", "build" ]
+publicDir = "artifacts/water-station/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18701"
+BASE_PATH = "/"

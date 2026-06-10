@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Water Station Management API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: stations
+    description: Station management
+  - name: products
+    description: Product management
+  - name: sales
+    description: Sales operations
+  - name: expenses
+    description: Expense tracking
+  - name: shifts
+    description: Worker shifts
+  - name: admin
+    description: Admin operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,409 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # Auth
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login (station or admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionUser"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current session info
+      responses:
+        "200":
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionUser"
+        "401":
+          description: Not authenticated
+
+  /auth/change-password:
+    patch:
+      operationId: changePassword
+      tags: [auth]
+      summary: Change station password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordInput"
+      responses:
+        "200":
+          description: Password changed
+        "400":
+          description: Invalid input
+
+  /auth/change-name:
+    patch:
+      operationId: changeStationName
+      tags: [auth]
+      summary: Change station display name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeNameInput"
+      responses:
+        "200":
+          description: Name changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Station"
+
+  # Products
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List products for current station
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    patch:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # Sales
+  /sales:
+    get:
+      operationId: listSales
+      tags: [sales]
+      summary: List sales for current station
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of sales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Sale"
+    post:
+      operationId: createSale
+      tags: [sales]
+      summary: Record a sale
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaleInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sale"
+
+  /sales/today-summary:
+    get:
+      operationId: getTodaySummary
+      tags: [sales]
+      summary: Get today's sales summary for current station
+      responses:
+        "200":
+          description: Today summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailySummary"
+
+  /sales/stats:
+    get:
+      operationId: getSalesStats
+      tags: [sales]
+      summary: Get sales statistics for current station
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [week, month, year]
+      responses:
+        "200":
+          description: Sales stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SalesStats"
+
+  # Expenses
+  /expenses:
+    get:
+      operationId: listExpenses
+      tags: [expenses]
+      summary: List expenses for current station
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+    post:
+      operationId: createExpense
+      tags: [expenses]
+      summary: Record an expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExpenseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+  /expenses/{id}:
+    delete:
+      operationId: deleteExpense
+      tags: [expenses]
+      summary: Delete an expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # Shifts
+  /shifts:
+    get:
+      operationId: listShifts
+      tags: [shifts]
+      summary: List shifts for current station
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of shifts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Shift"
+    post:
+      operationId: createShift
+      tags: [shifts]
+      summary: Add a worker shift
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShiftInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shift"
+
+  /shifts/active:
+    get:
+      operationId: getActiveShift
+      tags: [shifts]
+      summary: Get the currently active shift for the station
+      responses:
+        "200":
+          description: Active shift or null
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShiftOrNull"
+
+  /shifts/{id}/end:
+    patch:
+      operationId: endShift
+      tags: [shifts]
+      summary: End a shift
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Shift ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shift"
+
+  /shifts/{id}:
+    delete:
+      operationId: deleteShift
+      tags: [shifts]
+      summary: Delete a shift
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # Admin
+  /admin/stations:
+    get:
+      operationId: adminListStations
+      tags: [admin]
+      summary: Admin - list all stations
+      responses:
+        "200":
+          description: All stations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StationAdmin"
+
+  /admin/stations/{id}/toggle:
+    patch:
+      operationId: adminToggleStation
+      tags: [admin]
+      summary: Admin - enable or disable a station
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StationToggleInput"
+      responses:
+        "200":
+          description: Station updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StationAdmin"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +450,195 @@ components:
       required:
         - status
 
+    LoginInput:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string }
+
+    SessionUser:
+      type: object
+      required: [id, username, name, role, isActive]
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        name: { type: string }
+        role: { type: string, enum: [station, admin] }
+        isActive: { type: boolean }
+
+    ChangePasswordInput:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string }
+        newPassword: { type: string, minLength: 4 }
+
+    ChangeNameInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1 }
+
+    Station:
+      type: object
+      required: [id, username, name, isActive, createdAt]
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        name: { type: string }
+        isActive: { type: boolean }
+        createdAt: { type: string }
+
+    StationAdmin:
+      type: object
+      required: [id, username, name, isActive, createdAt, totalSalesToday, lastLoginAt]
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        name: { type: string }
+        isActive: { type: boolean }
+        createdAt: { type: string }
+        totalSalesToday: { type: number }
+        lastLoginAt: { type: ["string", "null"] }
+
+    StationToggleInput:
+      type: object
+      required: [isActive]
+      properties:
+        isActive: { type: boolean }
+
+    Product:
+      type: object
+      required: [id, name, price, stock, stationId, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        price: { type: number }
+        stock: { type: integer }
+        stationId: { type: integer }
+        createdAt: { type: string }
+
+    ProductInput:
+      type: object
+      required: [name, price, stock]
+      properties:
+        name: { type: string, minLength: 1 }
+        price: { type: number, minimum: 0 }
+        stock: { type: integer, minimum: 0 }
+
+    ProductUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        price: { type: number, minimum: 0 }
+        stock: { type: integer, minimum: 0 }
+
+    Sale:
+      type: object
+      required: [id, stationId, productId, productName, quantity, unitPrice, totalPrice, isCoupon, createdAt]
+      properties:
+        id: { type: integer }
+        stationId: { type: integer }
+        productId: { type: ["integer", "null"] }
+        productName: { type: string }
+        quantity: { type: integer }
+        unitPrice: { type: number }
+        totalPrice: { type: number }
+        isCoupon: { type: boolean }
+        createdAt: { type: string }
+
+    SaleInput:
+      type: object
+      required: [productId, quantity, isCoupon]
+      properties:
+        productId: { type: integer }
+        quantity: { type: integer, minimum: 1 }
+        isCoupon: { type: boolean }
+
+    DailySummary:
+      type: object
+      required: [totalRevenue, totalSales, couponCount, waterBottleCount, date]
+      properties:
+        totalRevenue: { type: number }
+        totalSales: { type: integer }
+        couponCount: { type: integer }
+        waterBottleCount: { type: integer }
+        date: { type: string }
+
+    SalesStats:
+      type: object
+      required: [period, dailyRevenue, totalRevenue, topProducts]
+      properties:
+        period: { type: string }
+        dailyRevenue:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyRevenue"
+        totalRevenue: { type: number }
+        topProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/TopProduct"
+
+    DailyRevenue:
+      type: object
+      required: [date, revenue]
+      properties:
+        date: { type: string }
+        revenue: { type: number }
+
+    TopProduct:
+      type: object
+      required: [name, quantity, revenue]
+      properties:
+        name: { type: string }
+        quantity: { type: integer }
+        revenue: { type: number }
+
+    Expense:
+      type: object
+      required: [id, stationId, description, amount, category, createdAt]
+      properties:
+        id: { type: integer }
+        stationId: { type: integer }
+        description: { type: string }
+        amount: { type: number }
+        category: { type: string }
+        createdAt: { type: string }
+
+    ExpenseInput:
+      type: object
+      required: [description, amount, category]
+      properties:
+        description: { type: string, minLength: 1 }
+        amount: { type: number, minimum: 0 }
+        category: { type: string }
+
+    Shift:
+      type: object
+      required: [id, stationId, workerName, startTime, createdAt]
+      properties:
+        id: { type: integer }
+        stationId: { type: integer }
+        workerName: { type: string }
+        startTime: { type: string }
+        endTime: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+        createdAt: { type: string }
+
+    ShiftOrNull:
+      type: object
+      properties:
+        shift:
+          oneOf:
+            - $ref: "#/components/schemas/Shift"
+            - type: "null"
+
+    ShiftInput:
+      type: object
+      required: [workerName, startTime]
+      properties:
+        workerName: { type: string, minLength: 1 }
+        startTime: { type: string }
+        notes: { type: string }
