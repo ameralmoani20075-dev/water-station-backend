@@ -8,6 +8,7 @@
 
 export * from './changeNameInput';
 export * from './changePasswordInput';
+export * from './createStationInput';
 export * from './dailyRevenue';
 export * from './dailySummary';
 export * from './expense';

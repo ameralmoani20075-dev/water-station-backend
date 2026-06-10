@@ -345,6 +345,23 @@ export const AdminListStationsResponse = zod.array(AdminListStationsResponseItem
 
 
 /**
+ * @summary Admin - create a new station
+ */
+export const adminCreateStationBodyUsernameMin = 2;
+
+export const adminCreateStationBodyPasswordMin = 4;
+
+
+
+
+export const AdminCreateStationBody = zod.object({
+  "username": zod.string().min(adminCreateStationBodyUsernameMin),
+  "password": zod.string().min(adminCreateStationBodyPasswordMin),
+  "name": zod.string().min(1)
+})
+
+
+/**
  * @summary Admin - enable or disable a station
  */
 export const AdminToggleStationParams = zod.object({

@@ -64,6 +64,15 @@ export interface StationToggleInput {
   isActive: boolean;
 }
 
+export interface CreateStationInput {
+  /** @minLength 2 */
+  username: string;
+  /** @minLength 4 */
+  password: string;
+  /** @minLength 1 */
+  name: string;
+}
+
 export interface Product {
   id: number;
   name: string;

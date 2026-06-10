@@ -22,6 +22,7 @@ import type {
 import type {
   ChangeNameInput,
   ChangePasswordInput,
+  CreateStationInput,
   DailySummary,
   Expense,
   ExpenseInput,
@@ -1774,6 +1775,77 @@ export function useAdminListStations<TData = Awaited<ReturnType<typeof adminList
 
 
 
+
+export const getAdminCreateStationUrl = () => {
+
+
+
+
+  return `/api/admin/stations`
+}
+
+/**
+ * @summary Admin - create a new station
+ */
+export const adminCreateStation = async (createStationInput: CreateStationInput, options?: RequestInit): Promise<StationAdmin> => {
+
+  return customFetch<StationAdmin>(getAdminCreateStationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createStationInput,)
+  }
+);}
+
+
+
+
+export const getAdminCreateStationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateStation>>, TError,{data: BodyType<CreateStationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminCreateStation>>, TError,{data: BodyType<CreateStationInput>}, TContext> => {
+
+const mutationKey = ['adminCreateStation'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminCreateStation>>, {data: BodyType<CreateStationInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  adminCreateStation(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminCreateStationMutationResult = NonNullable<Awaited<ReturnType<typeof adminCreateStation>>>
+    export type AdminCreateStationMutationBody = BodyType<CreateStationInput>
+    export type AdminCreateStationMutationError = ErrorType<void>
+
+    /**
+ * @summary Admin - create a new station
+ */
+export const useAdminCreateStation = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminCreateStation>>, TError,{data: BodyType<CreateStationInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminCreateStation>>,
+        TError,
+        {data: BodyType<CreateStationInput>},
+        TContext
+      > => {
+      return useMutation(getAdminCreateStationMutationOptions(options));
+    }
 
 export const getAdminToggleStationUrl = (id: number,) => {
 

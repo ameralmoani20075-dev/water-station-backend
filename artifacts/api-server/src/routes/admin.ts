@@ -1,7 +1,8 @@
 import { Router, type IRouter } from "express";
 import { eq, gte, lte, and, sql } from "drizzle-orm";
 import { db, stationsTable, salesTable } from "@workspace/db";
-import { AdminToggleStationParams, AdminToggleStationBody } from "@workspace/api-zod";
+import { AdminToggleStationParams, AdminToggleStationBody, AdminCreateStationBody } from "@workspace/api-zod";
+import bcrypt from "bcryptjs";
 
 const router: IRouter = Router();
 
@@ -52,6 +53,46 @@ router.get("/admin/stations", async (req, res): Promise<void> => {
     }));
 
   res.json(result);
+});
+
+router.post("/admin/stations", async (req, res): Promise<void> => {
+  if (!requireAdmin(req, res)) return;
+
+  const parsed = AdminCreateStationBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const { username, password, name } = parsed.data;
+
+  const existing = await db
+    .select({ id: stationsTable.id })
+    .from(stationsTable)
+    .where(eq(stationsTable.username, username))
+    .limit(1);
+
+  if (existing.length > 0) {
+    res.status(409).json({ error: "اسم المستخدم مستخدم بالفعل" });
+    return;
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const [station] = await db
+    .insert(stationsTable)
+    .values({ username, passwordHash: hashedPassword, name, role: "station", isActive: true })
+    .returning();
+
+  res.status(201).json({
+    id: station.id,
+    username: station.username,
+    name: station.name,
+    isActive: station.isActive,
+    createdAt: station.createdAt.toISOString(),
+    totalSalesToday: 0,
+    lastLoginAt: null,
+  });
 });
 
 router.patch("/admin/stations/:id/toggle", async (req, res): Promise<void> => {

@@ -414,6 +414,27 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/StationAdmin"
+    post:
+      operationId: adminCreateStation
+      tags: [admin]
+      summary: Admin - create a new station
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStationInput"
+      responses:
+        "201":
+          description: Station created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StationAdmin"
+        "400":
+          description: Validation error
+        "409":
+          description: Username already exists
 
   /admin/stations/{id}/toggle:
     patch:
@@ -507,6 +528,14 @@ components:
       required: [isActive]
       properties:
         isActive: { type: boolean }
+
+    CreateStationInput:
+      type: object
+      required: [username, password, name]
+      properties:
+        username: { type: string, minLength: 2 }
+        password: { type: string, minLength: 4 }
+        name: { type: string, minLength: 1 }
 
     Product:
       type: object
