@@ -28,6 +28,8 @@ export interface SessionUser {
   name: string;
   role: SessionUserRole;
   isActive: boolean;
+  /** @nullable */
+  logoUrl?: string | null;
 }
 
 export interface ChangePasswordInput {
@@ -184,6 +186,77 @@ export interface ShiftInput {
   workerName: string;
   startTime: string;
   notes?: string;
+}
+
+export interface Tank {
+  id: number;
+  stationId: number;
+  name: string;
+  isFull: boolean;
+  createdAt: string;
+}
+
+export interface TankInput {
+  /** @minLength 1 */
+  name: string;
+  isFull: boolean;
+}
+
+export interface TankUpdate {
+  /** @minLength 1 */
+  name?: string;
+  isFull?: boolean;
+}
+
+export interface StationFilter {
+  id: number;
+  stationId: number;
+  name: string;
+  isFull: boolean;
+  createdAt: string;
+}
+
+export interface FilterInput {
+  /** @minLength 1 */
+  name: string;
+  isFull: boolean;
+}
+
+export interface FilterUpdate {
+  /** @minLength 1 */
+  name?: string;
+  isFull?: boolean;
+}
+
+export interface Debt {
+  id: number;
+  stationId: number;
+  customerName: string;
+  amount: number;
+  note: string;
+  isPaid: boolean;
+  createdAt: string;
+}
+
+export interface DebtInput {
+  /** @minLength 1 */
+  customerName: string;
+  /** @minimum 0 */
+  amount: number;
+  note: string;
+}
+
+export interface DebtUpdate {
+  /** @minLength 1 */
+  customerName?: string;
+  /** @minimum 0 */
+  amount?: number;
+  note?: string;
+  isPaid?: boolean;
+}
+
+export interface LogoInput {
+  logoUrl: string;
 }
 
 export type ListSalesParams = {

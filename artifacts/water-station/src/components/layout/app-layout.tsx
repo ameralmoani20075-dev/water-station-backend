@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import Sidebar from "./sidebar";
+import MobileNav from "./mobile-nav";
 import { Spinner } from "@/components/ui/spinner";
 import { useLogout } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,13 +16,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Spinner size="lg" className="text-primary" />
+        <Spinner className="text-primary size-8" />
       </div>
     );
   }
 
   if (!user) {
-    return null; // AuthProvider handles redirect
+    return null;
   }
 
   if (!user.isActive && user.role !== "admin") {
@@ -32,11 +33,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <span className="text-2xl font-bold">!</span>
           </div>
           <h1 className="text-2xl font-bold text-foreground">حسابك موقوف</h1>
-          <p className="text-muted-foreground">
-            عذراً، لا يمكنك الوصول إلى النظام لأن حسابك موقوف. يرجى مراجعة المدير.
-          </p>
-          <Button 
-            variant="outline" 
+          <p className="text-muted-foreground">عذراً، لا يمكنك الوصول إلى النظام لأن حسابك موقوف. يرجى مراجعة المدير.</p>
+          <Button
+            variant="outline"
             className="w-full"
             onClick={() => {
               logoutMutation.mutate(undefined, {
@@ -58,9 +57,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex bg-muted/30">
       <Sidebar />
-      <main className="flex-1 p-6 md:p-8 md:mr-64 w-full max-w-full overflow-x-hidden">
+      <main className="flex-1 p-4 md:p-8 md:mr-64 w-full max-w-full overflow-x-hidden pb-20 md:pb-8">
         {children}
       </main>
+      <MobileNav />
     </div>
   );
 }

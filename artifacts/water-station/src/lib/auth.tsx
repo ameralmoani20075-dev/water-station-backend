@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, ReactNode } from "react";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
-import type { SessionUser } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { SessionUser } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
 
 interface AuthContextType {

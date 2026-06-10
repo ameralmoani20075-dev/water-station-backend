@@ -29,7 +29,8 @@ export const LoginResponse = zod.object({
   "username": zod.string(),
   "name": zod.string(),
   "role": zod.enum(['station', 'admin']),
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "logoUrl": zod.string().nullish()
 })
 
 
@@ -41,7 +42,8 @@ export const GetMeResponse = zod.object({
   "username": zod.string(),
   "name": zod.string(),
   "role": zod.enum(['station', 'admin']),
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "logoUrl": zod.string().nullish()
 })
 
 
@@ -326,6 +328,204 @@ export const EndShiftResponse = zod.object({
  */
 export const DeleteShiftParams = zod.object({
   "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary List tanks for current station
+ */
+export const ListTanksResponseItem = zod.object({
+  "id": zod.number(),
+  "stationId": zod.number(),
+  "name": zod.string(),
+  "isFull": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const ListTanksResponse = zod.array(ListTanksResponseItem)
+
+
+/**
+ * @summary Create a tank
+ */
+
+
+
+export const CreateTankBody = zod.object({
+  "name": zod.string().min(1),
+  "isFull": zod.boolean()
+})
+
+
+/**
+ * @summary Update tank status or name
+ */
+export const UpdateTankParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+export const UpdateTankBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "isFull": zod.boolean().optional()
+})
+
+export const UpdateTankResponse = zod.object({
+  "id": zod.number(),
+  "stationId": zod.number(),
+  "name": zod.string(),
+  "isFull": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a tank
+ */
+export const DeleteTankParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary List filters for current station
+ */
+export const ListFiltersResponseItem = zod.object({
+  "id": zod.number(),
+  "stationId": zod.number(),
+  "name": zod.string(),
+  "isFull": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const ListFiltersResponse = zod.array(ListFiltersResponseItem)
+
+
+/**
+ * @summary Create a filter
+ */
+
+
+
+export const CreateFilterBody = zod.object({
+  "name": zod.string().min(1),
+  "isFull": zod.boolean()
+})
+
+
+/**
+ * @summary Update filter status or name
+ */
+export const UpdateFilterParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+export const UpdateFilterBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "isFull": zod.boolean().optional()
+})
+
+export const UpdateFilterResponse = zod.object({
+  "id": zod.number(),
+  "stationId": zod.number(),
+  "name": zod.string(),
+  "isFull": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a filter
+ */
+export const DeleteFilterParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary List debts for current station
+ */
+export const ListDebtsResponseItem = zod.object({
+  "id": zod.number(),
+  "stationId": zod.number(),
+  "customerName": zod.string(),
+  "amount": zod.number(),
+  "note": zod.string(),
+  "isPaid": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const ListDebtsResponse = zod.array(ListDebtsResponseItem)
+
+
+/**
+ * @summary Create a debt record
+ */
+
+export const createDebtBodyAmountMin = 0;
+
+
+
+export const CreateDebtBody = zod.object({
+  "customerName": zod.string().min(1),
+  "amount": zod.number().min(createDebtBodyAmountMin),
+  "note": zod.string()
+})
+
+
+/**
+ * @summary Update a debt (mark paid, etc.)
+ */
+export const UpdateDebtParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+export const updateDebtBodyAmountMin = 0;
+
+
+
+export const UpdateDebtBody = zod.object({
+  "customerName": zod.string().min(1).optional(),
+  "amount": zod.number().min(updateDebtBodyAmountMin).optional(),
+  "note": zod.string().optional(),
+  "isPaid": zod.boolean().optional()
+})
+
+export const UpdateDebtResponse = zod.object({
+  "id": zod.number(),
+  "stationId": zod.number(),
+  "customerName": zod.string(),
+  "amount": zod.number(),
+  "note": zod.string(),
+  "isPaid": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a debt record
+ */
+export const DeleteDebtParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary Upload or update station logo (base64)
+ */
+export const UpdateLogoBody = zod.object({
+  "logoUrl": zod.string()
+})
+
+export const UpdateLogoResponse = zod.object({
+  "id": zod.number(),
+  "username": zod.string(),
+  "name": zod.string(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
 })
 
 

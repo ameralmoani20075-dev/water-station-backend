@@ -9,7 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Package, TrendingUp, Calendar as CalendarIcon } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ar } from "date-fns/locale";
-import type { GetSalesStatsPeriod } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { GetSalesStatsPeriod } from "@workspace/api-client-react";
 
 function formatCurrency(amount: number) {
   return amount.toLocaleString('ar-IQ') + " دينار";

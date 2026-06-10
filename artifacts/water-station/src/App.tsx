@@ -15,10 +15,13 @@ import Stats from "@/pages/stats";
 import Revenue from "@/pages/revenue";
 import Settings from "@/pages/settings";
 import Admin from "@/pages/admin";
+import Tanks from "@/pages/tanks";
+import Filters from "@/pages/filters";
+import Debts from "@/pages/debts";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ component: Component, adminOnly = false }: { component: any, adminOnly?: boolean }) {
+function ProtectedRoute({ component: Component }: { component: any }) {
   return (
     <AppLayout>
       <Component />
@@ -30,30 +33,17 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
-      <Route path="/">
-        <ProtectedRoute component={Dashboard} />
-      </Route>
-      <Route path="/products">
-        <ProtectedRoute component={Products} />
-      </Route>
-      <Route path="/expenses">
-        <ProtectedRoute component={Expenses} />
-      </Route>
-      <Route path="/shifts">
-        <ProtectedRoute component={Shifts} />
-      </Route>
-      <Route path="/stats">
-        <ProtectedRoute component={Stats} />
-      </Route>
-      <Route path="/revenue">
-        <ProtectedRoute component={Revenue} />
-      </Route>
-      <Route path="/settings">
-        <ProtectedRoute component={Settings} />
-      </Route>
-      <Route path="/admin">
-        <ProtectedRoute component={Admin} adminOnly={true} />
-      </Route>
+      <Route path="/"><ProtectedRoute component={Dashboard} /></Route>
+      <Route path="/products"><ProtectedRoute component={Products} /></Route>
+      <Route path="/expenses"><ProtectedRoute component={Expenses} /></Route>
+      <Route path="/shifts"><ProtectedRoute component={Shifts} /></Route>
+      <Route path="/stats"><ProtectedRoute component={Stats} /></Route>
+      <Route path="/revenue"><ProtectedRoute component={Revenue} /></Route>
+      <Route path="/tanks"><ProtectedRoute component={Tanks} /></Route>
+      <Route path="/filters"><ProtectedRoute component={Filters} /></Route>
+      <Route path="/debts"><ProtectedRoute component={Debts} /></Route>
+      <Route path="/settings"><ProtectedRoute component={Settings} /></Route>
+      <Route path="/admin"><ProtectedRoute component={Admin} /></Route>
       <Route component={NotFound} />
     </Switch>
   );

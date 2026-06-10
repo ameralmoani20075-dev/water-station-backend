@@ -399,6 +399,239 @@ paths:
         "204":
           description: Deleted
 
+  # Tanks
+  /tanks:
+    get:
+      operationId: listTanks
+      tags: [stations]
+      summary: List tanks for current station
+      responses:
+        "200":
+          description: List of tanks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tank"
+    post:
+      operationId: createTank
+      tags: [stations]
+      summary: Create a tank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TankInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tank"
+
+  /tanks/{id}:
+    patch:
+      operationId: updateTank
+      tags: [stations]
+      summary: Update tank status or name
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TankUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tank"
+    delete:
+      operationId: deleteTank
+      tags: [stations]
+      summary: Delete a tank
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # Filters
+  /filters:
+    get:
+      operationId: listFilters
+      tags: [stations]
+      summary: List filters for current station
+      responses:
+        "200":
+          description: List of filters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StationFilter"
+    post:
+      operationId: createFilter
+      tags: [stations]
+      summary: Create a filter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FilterInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StationFilter"
+
+  /filters/{id}:
+    patch:
+      operationId: updateFilter
+      tags: [stations]
+      summary: Update filter status or name
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FilterUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StationFilter"
+    delete:
+      operationId: deleteFilter
+      tags: [stations]
+      summary: Delete a filter
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # Debts
+  /debts:
+    get:
+      operationId: listDebts
+      tags: [stations]
+      summary: List debts for current station
+      responses:
+        "200":
+          description: List of debts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Debt"
+    post:
+      operationId: createDebt
+      tags: [stations]
+      summary: Create a debt record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DebtInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Debt"
+
+  /debts/{id}:
+    patch:
+      operationId: updateDebt
+      tags: [stations]
+      summary: Update a debt (mark paid, etc.)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DebtUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Debt"
+    delete:
+      operationId: deleteDebt
+      tags: [stations]
+      summary: Delete a debt record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # Logo
+  /stations/logo:
+    patch:
+      operationId: updateLogo
+      tags: [stations]
+      summary: Upload or update station logo (base64)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoInput"
+      responses:
+        "200":
+          description: Logo updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Station"
+
   # Admin
   /admin/stations:
     get:
@@ -487,6 +720,7 @@ components:
         name: { type: string }
         role: { type: string, enum: [station, admin] }
         isActive: { type: boolean }
+        logoUrl: { type: ["string", "null"] }
 
     ChangePasswordInput:
       type: object
@@ -671,3 +905,83 @@ components:
         workerName: { type: string, minLength: 1 }
         startTime: { type: string }
         notes: { type: string }
+
+    Tank:
+      type: object
+      required: [id, stationId, name, isFull, createdAt]
+      properties:
+        id: { type: integer }
+        stationId: { type: integer }
+        name: { type: string }
+        isFull: { type: boolean }
+        createdAt: { type: string }
+
+    TankInput:
+      type: object
+      required: [name, isFull]
+      properties:
+        name: { type: string, minLength: 1 }
+        isFull: { type: boolean }
+
+    TankUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        isFull: { type: boolean }
+
+    StationFilter:
+      type: object
+      required: [id, stationId, name, isFull, createdAt]
+      properties:
+        id: { type: integer }
+        stationId: { type: integer }
+        name: { type: string }
+        isFull: { type: boolean }
+        createdAt: { type: string }
+
+    FilterInput:
+      type: object
+      required: [name, isFull]
+      properties:
+        name: { type: string, minLength: 1 }
+        isFull: { type: boolean }
+
+    FilterUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        isFull: { type: boolean }
+
+    Debt:
+      type: object
+      required: [id, stationId, customerName, amount, note, isPaid, createdAt]
+      properties:
+        id: { type: integer }
+        stationId: { type: integer }
+        customerName: { type: string }
+        amount: { type: number }
+        note: { type: string }
+        isPaid: { type: boolean }
+        createdAt: { type: string }
+
+    DebtInput:
+      type: object
+      required: [customerName, amount, note]
+      properties:
+        customerName: { type: string, minLength: 1 }
+        amount: { type: number, minimum: 0 }
+        note: { type: string }
+
+    DebtUpdate:
+      type: object
+      properties:
+        customerName: { type: string, minLength: 1 }
+        amount: { type: number, minimum: 0 }
+        note: { type: string }
+        isPaid: { type: boolean }
+
+    LogoInput:
+      type: object
+      required: [logoUrl]
+      properties:
+        logoUrl: { type: string }

@@ -6,6 +6,9 @@ import salesRouter from "./sales";
 import expensesRouter from "./expenses";
 import shiftsRouter from "./shifts";
 import adminRouter from "./admin";
+import tanksRouter from "./tanks";
+import filtersRouter from "./filters";
+import debtsRouter from "./debts";
 
 const router: IRouter = Router();
 
@@ -16,5 +19,8 @@ router.use(salesRouter);
 router.use(expensesRouter);
 router.use(shiftsRouter);
 router.use(adminRouter);
+router.use(tanksRouter);
+router.use(filtersRouter);
+router.use(debtsRouter);
 
 export default router;

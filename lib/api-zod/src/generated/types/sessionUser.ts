@@ -13,4 +13,6 @@ export interface SessionUser {
   name: string;
   role: SessionUserRole;
   isActive: boolean;
+  /** @nullable */
+  logoUrl?: string | null;
 }

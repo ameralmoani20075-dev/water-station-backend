@@ -47,6 +47,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     name: station.name,
     role: station.role,
     isActive: station.isActive,
+    logoUrl: station.logoUrl ?? null,
   });
 });
 
@@ -79,6 +80,7 @@ router.get("/auth/me", async (req, res): Promise<void> => {
     name: station.name,
     role: station.role,
     isActive: station.isActive,
+    logoUrl: station.logoUrl ?? null,
   });
 });
 
@@ -120,6 +122,21 @@ router.patch("/auth/change-password", async (req, res): Promise<void> => {
     .where(eq(stationsTable.id, userId));
 
   res.json({ ok: true });
+});
+
+router.patch("/stations/logo", async (req, res): Promise<void> => {
+  const userId = (req.session as any).userId;
+  if (!userId) { res.status(401).json({ error: "غير مسجل الدخول" }); return; }
+  const { logoUrl } = req.body;
+  const [updated] = await db.update(stationsTable).set({ logoUrl }).where(eq(stationsTable.id, userId)).returning();
+  res.json({ id: updated.id, username: updated.username, name: updated.name, isActive: updated.isActive, createdAt: updated.createdAt.toISOString(), logoUrl: updated.logoUrl });
+});
+
+router.get("/stations/logo", async (req, res): Promise<void> => {
+  const userId = (req.session as any).userId;
+  if (!userId) { res.status(401).json({ error: "غير مسجل الدخول" }); return; }
+  const [station] = await db.select({ logoUrl: stationsTable.logoUrl }).from(stationsTable).where(eq(stationsTable.id, userId));
+  res.json({ logoUrl: station?.logoUrl ?? null });
 });
 
 router.patch("/auth/change-name", async (req, res): Promise<void> => {
