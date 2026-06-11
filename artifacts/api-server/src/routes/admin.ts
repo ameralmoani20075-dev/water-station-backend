@@ -16,6 +16,18 @@ function requireAdmin(req: any, res: any): boolean {
   return true;
 }
 
+function serializeStation(s: typeof stationsTable.$inferSelect, totalSalesToday: number) {
+  return {
+    id: s.id,
+    username: s.username,
+    name: s.name,
+    isActive: s.isActive,
+    createdAt: s.createdAt.toISOString(),
+    totalSalesToday,
+    lastLoginAt: s.lastLoginAt ? s.lastLoginAt.toISOString() : null,
+  };
+}
+
 router.get("/admin/stations", async (req, res): Promise<void> => {
   if (!requireAdmin(req, res)) return;
 
@@ -42,15 +54,7 @@ router.get("/admin/stations", async (req, res): Promise<void> => {
 
   const result = stations
     .filter((s) => s.role !== "admin")
-    .map((s) => ({
-      id: s.id,
-      username: s.username,
-      name: s.name,
-      isActive: s.isActive,
-      createdAt: s.createdAt.toISOString(),
-      totalSalesToday: salesTodayMap[s.id] ?? 0,
-      lastLoginAt: s.lastLoginAt ? s.lastLoginAt.toISOString() : null,
-    }));
+    .map((s) => serializeStation(s, salesTodayMap[s.id] ?? 0));
 
   res.json(result);
 });
@@ -84,15 +88,7 @@ router.post("/admin/stations", async (req, res): Promise<void> => {
     .values({ username, passwordHash: hashedPassword, name, role: "station", isActive: true })
     .returning();
 
-  res.status(201).json({
-    id: station.id,
-    username: station.username,
-    name: station.name,
-    isActive: station.isActive,
-    createdAt: station.createdAt.toISOString(),
-    totalSalesToday: 0,
-    lastLoginAt: null,
-  });
+  res.status(201).json(serializeStation(station, 0));
 });
 
 router.patch("/admin/stations/:id/toggle", async (req, res): Promise<void> => {
@@ -121,15 +117,72 @@ router.patch("/admin/stations/:id/toggle", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json({
-    id: station.id,
-    username: station.username,
-    name: station.name,
-    isActive: station.isActive,
-    createdAt: station.createdAt.toISOString(),
-    totalSalesToday: 0,
-    lastLoginAt: station.lastLoginAt ? station.lastLoginAt.toISOString() : null,
-  });
+  res.json(serializeStation(station, 0));
+});
+
+router.patch("/admin/stations/:id/username", async (req, res): Promise<void> => {
+  if (!requireAdmin(req, res)) return;
+
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "معرف غير صالح" }); return; }
+
+  const username = typeof req.body.username === "string" ? req.body.username.trim() : "";
+  if (username.length < 2) {
+    res.status(400).json({ error: "اسم المستخدم يجب أن يكون حرفين على الأقل" });
+    return;
+  }
+
+  const existing = await db
+    .select({ id: stationsTable.id })
+    .from(stationsTable)
+    .where(eq(stationsTable.username, username))
+    .limit(1);
+
+  if (existing.length > 0 && existing[0].id !== id) {
+    res.status(409).json({ error: "اسم المستخدم مستخدم بالفعل" });
+    return;
+  }
+
+  const [station] = await db
+    .update(stationsTable)
+    .set({ username })
+    .where(and(eq(stationsTable.id, id), eq(stationsTable.role, "station")))
+    .returning();
+
+  if (!station) {
+    res.status(404).json({ error: "المحطة غير موجودة" });
+    return;
+  }
+
+  res.json(serializeStation(station, 0));
+});
+
+router.post("/admin/stations/:id/reset-password", async (req, res): Promise<void> => {
+  if (!requireAdmin(req, res)) return;
+
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "معرف غير صالح" }); return; }
+
+  const newPassword = typeof req.body.newPassword === "string" ? req.body.newPassword : "";
+  if (newPassword.length < 4) {
+    res.status(400).json({ error: "كلمة المرور يجب أن تكون 4 أحرف على الأقل" });
+    return;
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  const [station] = await db
+    .update(stationsTable)
+    .set({ passwordHash: hashedPassword })
+    .where(and(eq(stationsTable.id, id), eq(stationsTable.role, "station")))
+    .returning();
+
+  if (!station) {
+    res.status(404).json({ error: "المحطة غير موجودة" });
+    return;
+  }
+
+  res.json({ success: true });
 });
 
 export default router;

@@ -6,6 +6,8 @@ import {
   getAdminListStationsQueryKey,
   useAdminToggleStation,
   useAdminCreateStation,
+  useAdminChangeStationUsername,
+  useAdminResetStationPassword,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -16,12 +18,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ShieldCheck, Store, Clock, Plus } from "lucide-react";
+import { ShieldCheck, Store, Clock, Plus, Pencil, KeyRound } from "lucide-react";
 import { format } from "date-fns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import type { StationAdmin } from "@workspace/api-client-react";
 
 function formatCurrency(amount: number) {
   return amount.toLocaleString('ar-IQ') + " دينار";
@@ -40,7 +43,12 @@ export default function Admin() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [usernameDialogStation, setUsernameDialogStation] = useState<StationAdmin | null>(null);
+  const [newUsername, setNewUsername] = useState("");
+  const [passwordDialogStation, setPasswordDialogStation] = useState<StationAdmin | null>(null);
+  const [newPassword, setNewPassword] = useState("");
 
   if (user?.role !== "admin") {
     setLocation("/");
@@ -50,6 +58,8 @@ export default function Admin() {
   const { data: stations } = useAdminListStations({ query: { queryKey: getAdminListStationsQueryKey() } });
   const toggleStation = useAdminToggleStation();
   const createStation = useAdminCreateStation();
+  const changeUsername = useAdminChangeStationUsername();
+  const resetPassword = useAdminResetStationPassword();
 
   const form = useForm<CreateStationValues>({
     resolver: zodResolver(createStationSchema),
@@ -80,6 +90,43 @@ export default function Admin() {
         },
         onError: (err: any) => {
           const msg = err?.response?.data?.error || "فشلت إضافة المحطة";
+          toast({ variant: "destructive", title: "خطأ", description: msg });
+        },
+      }
+    );
+  };
+
+  const handleChangeUsername = () => {
+    if (!usernameDialogStation || !newUsername.trim() || newUsername.length < 2) return;
+    changeUsername.mutate(
+      { id: usernameDialogStation.id, data: { username: newUsername.trim() } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getAdminListStationsQueryKey() });
+          toast({ title: "تم تغيير اسم المستخدم بنجاح" });
+          setUsernameDialogStation(null);
+          setNewUsername("");
+        },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.error || "فشل تغيير اسم المستخدم";
+          toast({ variant: "destructive", title: "خطأ", description: msg });
+        },
+      }
+    );
+  };
+
+  const handleResetPassword = () => {
+    if (!passwordDialogStation || !newPassword || newPassword.length < 4) return;
+    resetPassword.mutate(
+      { id: passwordDialogStation.id, data: { newPassword } },
+      {
+        onSuccess: () => {
+          toast({ title: "تم إعادة تعيين كلمة المرور بنجاح" });
+          setPasswordDialogStation(null);
+          setNewPassword("");
+        },
+        onError: (err: any) => {
+          const msg = err?.response?.data?.error || "فشل إعادة تعيين كلمة المرور";
           toast({ variant: "destructive", title: "خطأ", description: msg });
         },
       }
@@ -117,6 +164,7 @@ export default function Admin() {
                 <TableHead>مبيعات اليوم</TableHead>
                 <TableHead>آخر ظهور</TableHead>
                 <TableHead>الحالة</TableHead>
+                <TableHead>إجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -160,11 +208,33 @@ export default function Admin() {
                       </span>
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        title="تغيير اسم المستخدم"
+                        onClick={() => { setUsernameDialogStation(station); setNewUsername(station.username); }}
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        title="إعادة تعيين كلمة المرور"
+                        onClick={() => { setPasswordDialogStation(station); setNewPassword(""); }}
+                      >
+                        <KeyRound className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
               {stations?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                  <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                     لا توجد محطات مسجلة
                   </TableCell>
                 </TableRow>
@@ -228,6 +298,63 @@ export default function Admin() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!usernameDialogStation} onOpenChange={(open) => { if (!open) setUsernameDialogStation(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تغيير اسم المستخدم — {usernameDialogStation?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>اسم المستخدم الجديد</Label>
+              <Input
+                value={newUsername}
+                onChange={e => setNewUsername(e.target.value)}
+                placeholder="مثال: station3"
+                dir="ltr"
+                className="text-right"
+              />
+              <p className="text-xs text-muted-foreground">حرفان على الأقل. سيستخدمه عند تسجيل الدخول.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUsernameDialogStation(null)}>إلغاء</Button>
+            <Button onClick={handleChangeUsername} disabled={changeUsername.isPending || newUsername.length < 2}>
+              {changeUsername.isPending ? "جاري الحفظ..." : "حفظ"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!passwordDialogStation} onOpenChange={(open) => { if (!open) setPasswordDialogStation(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>إعادة تعيين كلمة المرور — {passwordDialogStation?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-800 dark:text-amber-300">
+              سيتم تعيين كلمة مرور جديدة للمحطة. لا يمكن استعادة كلمة المرور القديمة.
+            </div>
+            <div className="space-y-2">
+              <Label>كلمة المرور الجديدة</Label>
+              <Input
+                type="password"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="4 أحرف على الأقل"
+                dir="ltr"
+                className="text-right"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPasswordDialogStation(null)}>إلغاء</Button>
+            <Button onClick={handleResetPassword} disabled={resetPassword.isPending || newPassword.length < 4}>
+              {resetPassword.isPending ? "جاري الحفظ..." : "إعادة تعيين"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

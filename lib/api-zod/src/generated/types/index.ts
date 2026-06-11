@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminChangeUsernameInput';
+export * from './adminResetPasswordInput';
 export * from './changeNameInput';
 export * from './changePasswordInput';
 export * from './createStationInput';

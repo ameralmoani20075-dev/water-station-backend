@@ -8,6 +8,7 @@ export const debtsTable = pgTable("debts", {
   stationId: integer("station_id").notNull().references(() => stationsTable.id, { onDelete: "cascade" }),
   customerName: text("customer_name").notNull(),
   amount: numeric("amount", { precision: 10, scale: 3 }).notNull(),
+  paidAmount: numeric("paid_amount", { precision: 10, scale: 3 }).notNull().default("0"),
   note: text("note").notNull().default(""),
   isPaid: boolean("is_paid").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -396,6 +396,7 @@ export const ListFiltersResponseItem = zod.object({
   "stationId": zod.number(),
   "name": zod.string(),
   "isFull": zod.boolean(),
+  "lastChangedAt": zod.string().nullish(),
   "createdAt": zod.string()
 })
 export const ListFiltersResponse = zod.array(ListFiltersResponseItem)
@@ -433,6 +434,7 @@ export const UpdateFilterResponse = zod.object({
   "stationId": zod.number(),
   "name": zod.string(),
   "isFull": zod.boolean(),
+  "lastChangedAt": zod.string().nullish(),
   "createdAt": zod.string()
 })
 
@@ -453,6 +455,7 @@ export const ListDebtsResponseItem = zod.object({
   "stationId": zod.number(),
   "customerName": zod.string(),
   "amount": zod.number(),
+  "paidAmount": zod.number(),
   "note": zod.string(),
   "isPaid": zod.boolean(),
   "createdAt": zod.string()
@@ -476,7 +479,7 @@ export const CreateDebtBody = zod.object({
 
 
 /**
- * @summary Update a debt (mark paid, etc.)
+ * @summary Update a debt (mark paid, partial payment, etc.)
  */
 export const UpdateDebtParams = zod.object({
   "id": zod.coerce.number()
@@ -485,11 +488,14 @@ export const UpdateDebtParams = zod.object({
 
 export const updateDebtBodyAmountMin = 0;
 
+export const updateDebtBodyPaidAmountMin = 0;
+
 
 
 export const UpdateDebtBody = zod.object({
   "customerName": zod.string().min(1).optional(),
   "amount": zod.number().min(updateDebtBodyAmountMin).optional(),
+  "paidAmount": zod.number().min(updateDebtBodyPaidAmountMin).optional(),
   "note": zod.string().optional(),
   "isPaid": zod.boolean().optional()
 })
@@ -499,6 +505,7 @@ export const UpdateDebtResponse = zod.object({
   "stationId": zod.number(),
   "customerName": zod.string(),
   "amount": zod.number(),
+  "paidAmount": zod.number(),
   "note": zod.string(),
   "isPaid": zod.boolean(),
   "createdAt": zod.string()
@@ -580,6 +587,48 @@ export const AdminToggleStationResponse = zod.object({
   "createdAt": zod.string(),
   "totalSalesToday": zod.number(),
   "lastLoginAt": zod.string().nullable()
+})
+
+
+/**
+ * @summary Admin - change station username
+ */
+export const AdminChangeStationUsernameParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const adminChangeStationUsernameBodyUsernameMin = 2;
+
+
+
+export const AdminChangeStationUsernameBody = zod.object({
+  "username": zod.string().min(adminChangeStationUsernameBodyUsernameMin)
+})
+
+export const AdminChangeStationUsernameResponse = zod.object({
+  "id": zod.number(),
+  "username": zod.string(),
+  "name": zod.string(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "totalSalesToday": zod.number(),
+  "lastLoginAt": zod.string().nullable()
+})
+
+
+/**
+ * @summary Admin - reset station password
+ */
+export const AdminResetStationPasswordParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const adminResetStationPasswordBodyNewPasswordMin = 4;
+
+
+
+export const AdminResetStationPasswordBody = zod.object({
+  "newPassword": zod.string().min(adminResetStationPasswordBodyNewPasswordMin)
 })
 
 

@@ -8,6 +8,7 @@ export const filtersTable = pgTable("filters", {
   stationId: integer("station_id").notNull().references(() => stationsTable.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   isFull: boolean("is_full").notNull().default(true),
+  lastChangedAt: timestamp("last_changed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

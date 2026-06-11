@@ -11,5 +11,7 @@ export interface StationFilter {
   stationId: number;
   name: string;
   isFull: boolean;
+  /** @nullable */
+  lastChangedAt?: string | null;
   createdAt: string;
 }

@@ -7,6 +7,8 @@ import {
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -18,8 +20,15 @@ function formatCurrency(amount: number) {
 }
 
 export default function Dashboard() {
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  if (user?.role === "admin") {
+    setLocation("/admin");
+    return null;
+  }
   
   const { data: summary } = useGetTodaySummary({ query: { queryKey: getGetTodaySummaryQueryKey() } });
   const { data: products } = useListProducts({ query: { queryKey: getListProductsQueryKey() } });

@@ -1,0 +1,4 @@
+- [Debt partial payment](debt-partial-payment.md) — paidAmount column added to debts; isPaid auto-set when paidAmount >= amount; use `updateDebt` with `paidAmount` field.
+- [Filter lastChangedAt](filter-reminder.md) — lastChangedAt auto-set in backend when isFull flips false→true; 30-day frontend reminder uses date-fns differenceInDays.
+- [Admin password reset](admin-password-reset.md) — bcrypt hashes cannot be reversed; admin feature is "reset password", not "view password". Zod not available in api-server, use manual validation.
+- [Revenue net profit](revenue-netprofit.md) — Net profit computed frontend-only: monthRevenue + debtPayments − monthExpenses. No backend changes needed.

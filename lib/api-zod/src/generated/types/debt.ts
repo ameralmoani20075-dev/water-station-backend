@@ -11,6 +11,7 @@ export interface Debt {
   stationId: number;
   customerName: string;
   amount: number;
+  paidAmount: number;
   note: string;
   isPaid: boolean;
   createdAt: string;

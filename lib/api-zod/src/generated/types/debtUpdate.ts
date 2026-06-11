@@ -11,6 +11,8 @@ export interface DebtUpdate {
   customerName?: string;
   /** @minimum 0 */
   amount?: number;
+  /** @minimum 0 */
+  paidAmount?: number;
   note?: string;
   isPaid?: boolean;
 }

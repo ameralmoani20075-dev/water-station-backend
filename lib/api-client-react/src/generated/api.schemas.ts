@@ -75,6 +75,16 @@ export interface CreateStationInput {
   name: string;
 }
 
+export interface AdminChangeUsernameInput {
+  /** @minLength 2 */
+  username: string;
+}
+
+export interface AdminResetPasswordInput {
+  /** @minLength 4 */
+  newPassword: string;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -213,6 +223,8 @@ export interface StationFilter {
   stationId: number;
   name: string;
   isFull: boolean;
+  /** @nullable */
+  lastChangedAt?: string | null;
   createdAt: string;
 }
 
@@ -233,6 +245,7 @@ export interface Debt {
   stationId: number;
   customerName: string;
   amount: number;
+  paidAmount: number;
   note: string;
   isPaid: boolean;
   createdAt: string;
@@ -251,6 +264,8 @@ export interface DebtUpdate {
   customerName?: string;
   /** @minimum 0 */
   amount?: number;
+  /** @minimum 0 */
+  paidAmount?: number;
   note?: string;
   isPaid?: boolean;
 }
