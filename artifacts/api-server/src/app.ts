@@ -29,7 +29,7 @@ app.use(
 
 app.use(
   cors({
-    origin: ['https://water-station-api-fix.lovable.app', 'http://localhost:5173'],
+    origin: true,
     credentials: true,
   }),
 );
